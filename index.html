@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F2A44">
+<meta name="robots" content="noindex, nofollow">
+<title>Control de áreas</title>
+<link rel="icon" href="escudo.png">
+<link rel="apple-touch-icon" href="icono.png">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0F2A44; --azul:#1F5FA8; --celeste:#5BA4D9; --celeste-suave:#E4F0FA;
+  --fondo:#F2F5F9; --panel:#FFFFFF; --texto:#14263A; --gris:#5E6E80; --linea:#DCE4EE;
+  --rojo:#C0392B; --rojo-suave:#FBE9E7; --limon:#E0A800; --limon-suave:#FFF6D6; --verde:#2E8B57; --verde-suave:#E5F4EC;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--fondo);color:var(--texto);font-family:"Atkinson Hyperlegible",system-ui,sans-serif;
+  font-size:16px;line-height:1.4;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- cabecera ---------- */
+header{background:var(--navy);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;position:sticky;top:0;z-index:5;
+  display:flex;align-items:center;gap:12px}
+header img{width:36px;height:36px}
+header .t{flex:1;min-width:0}
+header h1{font-size:1.05rem;margin:0;font-weight:700;letter-spacing:.01em}
+header .sub{font-size:.8rem;color:#A9C4DE;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icono{background:rgba(255,255,255,.1);border:0;border-radius:10px;width:40px;height:40px;display:grid;place-items:center;cursor:pointer}
+.icono:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--celeste);outline-offset:2px}
+.icono svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2}
+.girando svg{animation:giro 1s linear infinite}
+@keyframes giro{to{transform:rotate(360deg)}}
+
+main{max-width:720px;margin:0 auto;padding:16px 16px calc(32px + env(safe-area-inset-bottom))}
+
+/* ---------- ingreso ---------- */
+.ingreso{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:24px 20px;max-width:420px;margin:0 auto}
+.ingreso img{width:72px;height:72px;margin-bottom:14px}
+.ingreso h1{font-size:1.6rem;margin:0 0 4px}
+.ingreso p{color:var(--gris);margin:0 0 22px}
+label{display:block;font-size:.85rem;color:var(--gris);margin:12px 0 4px}
+input{width:100%;font:inherit;padding:12px 14px;border:1px solid var(--linea);border-radius:10px;background:#fff}
+.boton{width:100%;margin-top:20px;padding:13px;border:0;border-radius:10px;background:var(--azul);color:#fff;font-weight:700;cursor:pointer}
+.boton[disabled]{opacity:.6}
+.error{color:var(--rojo);font-size:.9rem;margin-top:12px;min-height:1.2em}
+.pie{color:var(--gris);font-size:.78rem;margin-top:28px}
+
+/* ---------- totales ---------- */
+.totales{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--linea);border:1px solid var(--linea);border-radius:14px;overflow:hidden;margin-bottom:18px}
+.totales div{background:var(--panel);padding:12px 14px}
+.totales b{display:block;font-size:1.12rem}
+.totales span{font-size:.8rem;color:var(--gris)}
+.totales .rojo b{color:var(--rojo)}
+
+.filtro{display:flex;gap:8px;margin:0 0 12px}
+.filtro button{border:1px solid var(--linea);background:var(--panel);border-radius:999px;padding:7px 14px;font-size:.9rem;cursor:pointer}
+.filtro button[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+
+/* ---------- lista de áreas: el semáforo ---------- */
+.areas{display:flex;flex-direction:column;gap:10px;padding:0;margin:0;list-style:none}
+.area{display:grid;grid-template-columns:8px 1fr auto;background:var(--panel);border:1px solid var(--linea);border-radius:12px;overflow:hidden;
+  text-align:left;width:100%;padding:0;cursor:pointer}
+.area .luz{background:var(--verde)}
+.area.amarillo .luz{background:var(--limon)} .area.rojo .luz{background:var(--rojo)}
+.area .cuerpo{display:block;padding:12px 12px 12px 14px;min-width:0}
+.area .act,.area .der span{display:block}
+.area h2{font-size:1.02rem;margin:0 0 2px}
+.area .act{font-size:.8rem;color:var(--gris)}
+.area .der{padding:12px 14px 12px 4px;text-align:right}
+.area .der b{display:block;font-size:.98rem}
+.area .der span{font-size:.75rem;color:var(--gris)}
+.barra{display:block;height:6px;border-radius:3px;background:var(--celeste-suave);margin:9px 0 6px;overflow:hidden}
+.barra i{display:block;height:100%;background:var(--celeste);border-radius:3px}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{font-size:.74rem;padding:2px 8px;border-radius:999px;background:var(--limon-suave);color:#6B5300}
+.chip.r{background:var(--rojo-suave);color:#8E2318}
+.chip.v{background:var(--verde-suave);color:#1F5F3B}
+
+/* ---------- detalle ---------- */
+.volver{display:inline-flex;align-items:center;gap:6px;border:0;background:none;color:var(--azul);font-weight:700;padding:4px 0;margin-bottom:8px;cursor:pointer}
+.titulo-area{font-size:1.5rem;margin:0 0 4px}
+.estado{font-size:.85rem;color:var(--gris);margin-bottom:14px}
+.alertas{list-style:none;padding:0;margin:0 0 18px;display:flex;flex-direction:column;gap:8px}
+.alertas li{border-left:4px solid var(--limon);background:var(--panel);border-radius:8px;padding:10px 12px;font-size:.92rem}
+.alertas li.r{border-left-color:var(--rojo)} .alertas li.v{border-left-color:var(--verde)}
+.alertas small{display:block;color:var(--gris);font-size:.8rem;margin-top:2px}
+.pestanas{display:flex;gap:4px;background:#E3E9F1;border-radius:12px;padding:4px;margin-bottom:12px;position:sticky;top:calc(var(--cab, 76px) + 6px);z-index:4}
+.pestanas button{flex:1;border:0;background:none;border-radius:9px;padding:8px 4px;font-size:.88rem;cursor:pointer;color:var(--gris)}
+.pestanas button[aria-selected="true"]{background:var(--panel);color:var(--texto);font-weight:700;box-shadow:0 1px 2px rgba(15,42,68,.12)}
+.lista{background:var(--panel);border:1px solid var(--linea);border-radius:12px;overflow:hidden}
+.fila{padding:11px 14px;border-top:1px solid var(--linea);display:flex;justify-content:space-between;gap:10px}
+.fila:first-child{border-top:0}
+.fila .i{min-width:0}
+.fila .i b{display:block;font-size:.93rem;overflow-wrap:anywhere}
+.fila .i span{font-size:.8rem;color:var(--gris)}
+.fila .m{text-align:right;white-space:nowrap}
+.fila .m b{display:block;font-size:.93rem}
+.fila .m span{font-size:.76rem;color:var(--gris)}
+.fila.vieja .m b{color:var(--rojo)}
+.vacio{padding:18px 14px;color:var(--gris);text-align:center}
+.buscar{margin-bottom:10px}
+.nota{font-size:.78rem;color:var(--gris);margin:14px 2px 0}
+.cargando{padding:40px 0;text-align:center;color:var(--gris)}
+@media (prefers-reduced-motion:reduce){.girando svg{animation:none}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ---------------------------------------------------------------------------------------------
+// Configuración: dirección del proyecto de Supabase y su clave PÚBLICA (la «anon»/«publishable»:
+// es pública por diseño; solo deja llamar a las funciones de consulta, no leer tablas).
+// ---------------------------------------------------------------------------------------------
+const CONFIG = {
+  url: "https://wzuuxfnpaadzuavburlw.supabase.co",
+  clave: "sb_publishable_AZzWqUrLemF7z5j3WvOjJg_ImynYpAm",
+};
+const local = ["localhost", "127.0.0.1"].includes(location.hostname) && !new URLSearchParams(location.search).has("nube");
+const DEMO = new URLSearchParams(location.search).has("demo");
+const ESQUEMA = DEMO ? "movil_demo" : "movil";
+const BASE = local ? location.origin : CONFIG.url;
+const GUARDA = "siprosa_control_" + ESQUEMA;
+
+const $ = (s, el = document) => el.querySelector(s);
+const app = $("#app");
+const pesos = new Intl.NumberFormat("es-AR", {style: "currency", currency: "ARS", maximumFractionDigits: 0});
+const pesos2 = new Intl.NumberFormat("es-AR", {style: "currency", currency: "ARS", minimumFractionDigits: 2});
+const plata = v => pesos.format(Math.round(+v || 0));
+const plataExacta = v => pesos2.format(+v || 0);
+const MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fecha = iso => { if (!iso) return ""; const [a, m, d] = String(iso).slice(0, 10).split("-"); return `${d}/${m}/${a}`; };
+
+function cuando(txt) {
+  if (!txt) return "sin actividad";
+  const d = new Date(String(txt).replace(" ", "T"));
+  if (isNaN(d)) return txt;
+  const min = Math.round((Date.now() - d) / 60000);
+  if (min < 2) return "recién";
+  if (min < 60) return `hace ${min} min`;
+  const h = Math.round(min / 60);
+  if (h < 24) return `hace ${h} h`;
+  const dias = Math.round(h / 24);
+  return dias === 1 ? "ayer" : `hace ${dias} días`;
+}
+
+async function api(fn, args) {
+  const r = await fetch(`${BASE}/rest/v1/rpc/${fn}`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json", "Content-Profile": ESQUEMA, "Accept-Profile": ESQUEMA,
+              apikey: CONFIG.clave},
+    body: JSON.stringify(args),
+  });
+  if (!r.ok) throw new Error(r.status === 404 ? "La consulta no está habilitada todavía en Supabase." :
+                             `El servidor contestó ${r.status}. Probá de nuevo en un rato.`);
+  const d = await r.json();
+  if (d && d.error === "sesion") { salir(true); throw new Error("La sesión venció. Volvé a ingresar."); }
+  if (d && d.error) throw new Error(d.error);
+  return d;
+}
+
+let sesion = null;
+try { sesion = JSON.parse(localStorage.getItem(GUARDA) || "null"); } catch (e) { sesion = null; }
+let datos = null, filtro = "todas", detalle = null, pestana = "deuda";
+
+// ---------------------------------------------------------------------------------------------
+// Semáforo: rojo = algo vencido o mal; amarillo = algo para mirar; verde = al día.
+// ---------------------------------------------------------------------------------------------
+function alertasDe(a) {
+  const al = [], f = a.foto || {};
+  const venc = (f.ret || []).filter(r => r.dias < 0), prox = (f.ret || []).filter(r => r.dias >= 0 && r.dias <= 5);
+  const tot = l => l.reduce((s, r) => s + (+r.imp || 0), 0);
+  if (venc.length) al.push({n: "r", t: `Retenciones vencidas sin depositar: ${plataExacta(tot(venc))}`,
+                            s: venc.map(r => `${r.d} ${plata(r.imp)} (venció ${fecha(r.lim)})`).join(" · ")});
+  if (prox.length) al.push({n: "a", t: `Retenciones por depositar esta semana: ${plataExacta(tot(prox))}`,
+                            s: prox.map(r => `${r.d} ${plata(r.imp)} (límite ${fecha(r.lim)})`).join(" · ")});
+  for (const x of f.revisar || []) {
+    if (x.graves) al.push({n: "r", t: `${x.af}: ${x.graves} problema(s) grave(s) en Revisar AF`, s: (x.ejemplos || []).join(" · ")});
+    else if (x.revisar) al.push({n: "a", t: `${x.af}: ${x.revisar} aviso(s) para revisar`, s: "Revisar AF en el programa"});
+  }
+  const b = f.banco;
+  if (b && b.conc_banco && b.conc_dif != null && Math.abs(b.conc_dif) > 1)
+    al.push({n: "r", t: `Libro Banco no concilia en ${b.conc_mes}`, s: `Diferencia ${plataExacta(b.conc_dif)}`});
+  if (b && b.sin_saldo_inicial) al.push({n: "a", t: "Libro Banco sin saldo inicial cargado", s: ""});
+  if (+a.saldo_ejec < -0.5) al.push({n: "r", t: "Saldo de AF en ejecución negativo", s: plataExacta(a.saldo_ejec)});
+  if (a.deuda_vieja_n > 0) al.push({n: "a", t: `${a.deuda_vieja_n} factura(s) con más de 60 días sin pagar`, s: plataExacta(a.deuda_vieja)});
+  if (f.prov_vencidos_n) al.push({n: "a", t: `${f.prov_vencidos_n} proveedor(es) con deuda y verificación fiscal vencida`, s: (f.prov_vencidos || []).slice(0, 4).join(", ")});
+  if (!a.foto_fecha) al.push({n: "a", t: "Sin datos de control todavía", s: "Se completan cuando alguien abre el programa"});
+  else if ((Date.now() - new Date(a.foto_fecha)) > 3 * 86400000) al.push({n: "a", t: "Control desactualizado", s: `Último cálculo ${cuando(a.foto_fecha)}`});
+  return al;
+}
+const color = al => al.some(x => x.n === "r") ? "rojo" : al.length ? "amarillo" : "verde";
+
+// ---------------------------------------------------------------------------------------------
+// Pantallas
+// ---------------------------------------------------------------------------------------------
+function pantallaIngreso(msg = "") {
+  app.innerHTML = `
+  <form class="ingreso" id="f">
+    <img src="escudo.png" alt="Escudo de Tucumán">
+    <h1>Control de áreas</h1>
+    <p>Rendiciones SIPROSA · Área Programática Este${DEMO ? " · demostración" : ""}. Solo consulta.</p>
+    <label for="u">Usuario</label><input id="u" autocomplete="username" autocapitalize="none" required>
+    <label for="c">Contraseña</label><input id="c" type="password" autocomplete="current-password" required>
+    <button class="boton" id="b">Ingresar</button>
+    <div class="error" role="alert">${esc(msg)}</div>
+    <div class="pie">Mismo usuario y contraseña del programa. Solo super usuario y supervisores.</div>
+  </form>`;
+  $("#f").onsubmit = async e => {
+    e.preventDefault();
+    const b = $("#b"); b.disabled = true; b.textContent = "Ingresando…";
+    try {
+      const r = await api("entrar", {p_usuario: $("#u").value, p_clave: $("#c").value});
+      sesion = {token: r.token, usuario: r.usuario, rol: r.rol};
+      localStorage.setItem(GUARDA, JSON.stringify(sesion));
+      cargar();
+    } catch (err) {
+      $(".error").textContent = err.message; b.disabled = false; b.textContent = "Ingresar";
+    }
+  };
+}
+
+function cabecera(sub) {
+  return `<header>
+    <img src="escudo.png" alt="">
+    <div class="t"><h1>Control de áreas${DEMO ? " (demo)" : ""}</h1><div class="sub">${esc(sub)}</div></div>
+    <button class="icono" id="ref" aria-label="Actualizar"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>
+    <button class="icono" id="sal" aria-label="Salir"><svg viewBox="0 0 24 24"><path d="M15 4h4v16h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H4"/></svg></button>
+  </header>`;
+}
+function enganchar() {
+  const h = $("header");
+  if (h) document.documentElement.style.setProperty("--cab", h.offsetHeight + "px");
+  $("#ref").onclick = () => detalle ? abrirArea(detalle.id) : cargar();
+  $("#sal").onclick = () => salir();
+}
+
+async function cargar() {
+  detalle = null;
+  app.innerHTML = cabecera(sesion.usuario) + `<main><div class="cargando">Trayendo los datos de las áreas…</div></main>`;
+  enganchar(); $("#ref").classList.add("girando");
+  try { datos = await api("resumen", {p_token: sesion.token}); pantallaResumen(); }
+  catch (err) { if (sesion) $("main").innerHTML = `<div class="cargando">${esc(err.message)}</div>`; }
+}
+
+function pantallaResumen() {
+  const A = datos.areas.map(a => ({...a, al: alertasDe(a)}));
+  A.forEach(a => a.color = color(a.al));
+  const sum = k => A.reduce((s, a) => s + (+a[k] || 0), 0);
+  const asignado = sum("salud") + sum("no_salud"), conAl = A.filter(a => a.color !== "verde");
+  const orden = {rojo: 0, amarillo: 1, verde: 2};
+  const lista = (filtro === "alertas" ? conAl : A).slice().sort((x, y) => orden[x.color] - orden[y.color] || x.nombre.localeCompare(y.nombre));
+  const hasta = MESES[datos.hasta_mes - 1];
+  app.innerHTML = cabecera(`${sesion.usuario} · al ${fecha(datos.hoy)}`) + `<main>
+    <div class="totales">
+      <div><b class="num">${plata(asignado)}</b><span>Asignado ${datos.anio} (enero a ${hasta})</span></div>
+      <div><b class="num">${plata(sum("gastado"))}</b><span>Gastado de esos AF</span></div>
+      <div><b class="num">${plata(sum("saldo_ejec"))}</b><span>Saldo de AF en ejecución</span></div>
+      <div class="${sum("deuda_vieja") > 0 ? "rojo" : ""}"><b class="num">${plata(sum("deuda"))}</b><span>Deuda pendiente · ${plata(sum("deuda_vieja"))} con más de 60 días</span></div>
+    </div>
+    <div class="filtro" role="group" aria-label="Filtrar áreas">
+      <button data-f="todas" aria-pressed="${filtro === "todas"}">Todas (${A.length})</button>
+      <button data-f="alertas" aria-pressed="${filtro === "alertas"}">Con alertas (${conAl.length})</button>
+    </div>
+    <ul class="areas">${lista.map(a => {
+      const asig = (+a.salud) + (+a.no_salud), pct = asig ? Math.min(100, Math.round(100 * a.gastado / asig)) : 0;
+      const rojas = a.al.filter(x => x.n === "r").length, amar = a.al.length - rojas;
+      return `<li><button class="area ${a.color}" data-id="${a.id}">
+        <span class="luz"></span>
+        <span class="cuerpo"><h2>${esc(a.nombre)}</h2>
+          <span class="act">${a.ult_usuario ? esc(a.ult_usuario) + " · " : ""}${cuando(a.ult_fecha)}</span>
+          <span class="barra" title="Gastado ${pct}% de lo asignado"><i style="width:${pct}%"></i></span>
+          <span class="chips">${rojas ? `<span class="chip r">${rojas} urgente${rojas > 1 ? "s" : ""}</span>` : ""}${amar ? `<span class="chip">${amar} para mirar</span>` : ""}${!a.al.length ? `<span class="chip v">Al día</span>` : ""}</span>
+        </span>
+        <span class="der"><b class="num">${plata(a.deuda)}</b><span>deuda · ${a.deuda_n} fact.</span><b class="num" style="margin-top:6px">${plata(a.saldo_ejec)}</b><span>saldo AF</span></span>
+      </button></li>`;
+    }).join("") || `<div class="vacio">Ninguna área tiene alertas.</div>`}</ul>
+    <p class="nota">Rojo: algo vencido o con error. Amarillo: algo para mirar. Verde: al día. Solo consulta: nada se puede cambiar desde acá.</p>
+  </main>`;
+  enganchar();
+  app.querySelectorAll(".filtro button").forEach(b => b.onclick = () => { filtro = b.dataset.f; pantallaResumen(); });
+  app.querySelectorAll(".area").forEach(b => b.onclick = () => abrirArea(+b.dataset.id));
+}
+
+async function abrirArea(id) {
+  const res = datos && datos.areas.find(a => a.id === id);
+  app.innerHTML = cabecera(res ? res.nombre : "Área") + `<main><div class="cargando">Trayendo el detalle…</div></main>`;
+  enganchar(); $("#ref").classList.add("girando"); window.scrollTo(0, 0);
+  try {
+    const d = await api("area", {p_token: sesion.token, p_area: id});
+    detalle = {...d, res};
+    pantallaArea();
+  } catch (err) { if (sesion) $("main").innerHTML = `<div class="cargando">${esc(err.message)}</div>`; }
+}
+
+function pantallaArea() {
+  const d = detalle, a = d.res || {}, al = alertasDe({...a, foto: d.foto, foto_fecha: d.foto_fecha});
+  const viejo = new Date(Date.now() - 60 * 86400000).toISOString().slice(0, 10);
+  const deuda = d.deuda.filter(x => !x.sin_factura), sinf = d.deuda.filter(x => x.sin_factura);
+  const tabs = {
+    deuda: `<input class="buscar" id="q" placeholder="Buscar proveedor o factura" aria-label="Buscar en la deuda">
+      <div class="lista" id="ld">${filasDeuda(deuda, viejo, "")}</div>
+      ${sinf.length ? `<p class="nota">Además hay ${sinf.length} orden(es) de compra sin factura todavía.</p>` : ""}`,
+    af: `<div class="lista">${d.afs.map(f => {
+        const saldo = f.importe - f.gastado;
+        return `<div class="fila"><div class="i"><b>${esc(f.tipo)} · ${MESES[f.mes - 1]} ${f.anio}</b>
+          <span>AF N° ${esc(f.numero || "s/n")} · ${esc(f.situacion || "")}${f.fecha_dep ? " · depositado " + fecha(f.fecha_dep) : ""}</span></div>
+          <div class="m"><b class="num" style="${saldo < -0.5 ? "color:var(--rojo)" : ""}">${plataExacta(saldo)}</b><span>de ${plata(f.importe)}</span></div></div>`;
+      }).join("") || `<div class="vacio">Sin AF este año.</div>`}</div>`,
+    pagos: `<div class="lista">${d.pagos.map(p => `<div class="fila"><div class="i"><b>${esc(p.proveedor)}</b>
+        <span>${fecha(p.fecha_pago)} · ${esc(p.factura || "S/F")}${p.op ? " · OP " + esc(p.op) : ""}${p.af ? " · AF " + esc(p.af) : " · sin AF"}</span></div>
+        <div class="m"><b class="num">${plataExacta(p.importe)}</b><span>ret. ${plata(p.retenciones)}</span></div></div>`).join("") || `<div class="vacio">Sin pagos cargados.</div>`}</div>`,
+    actividad: `<div class="lista">${d.historial.map(h => `<div class="fila"><div class="i"><b>${esc(h.accion)}</b>
+        <span>${esc(h.detalle || "")}</span></div><div class="m"><b>${esc(h.usuario || "")}</b><span>${esc(String(h.fecha || "").slice(0, 16).replace("T", " "))}</span></div></div>`).join("") || `<div class="vacio">Sin actividad registrada.</div>`}</div>`,
+  };
+  app.innerHTML = cabecera(`${d.nombre} · solo consulta`) + `<main>
+    <button class="volver" id="vol"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 18l-6-6 6-6"/></svg>Todas las áreas</button>
+    <h2 class="titulo-area">${esc(d.nombre)}</h2>
+    <div class="estado">${a.ult_usuario ? "Último movimiento de " + esc(a.ult_usuario) + ", " : ""}${cuando(a.ult_fecha)}. Control calculado ${d.foto_fecha ? cuando(d.foto_fecha) : "—"}.</div>
+    <ul class="alertas">${al.map(x => `<li class="${x.n === "r" ? "r" : ""}">${esc(x.t)}${x.s ? `<small>${esc(x.s)}</small>` : ""}</li>`).join("")
+      || `<li class="v">Al día: sin retenciones vencidas, sin problemas graves y sin deuda vieja.<small>Igual podés mirar el detalle.</small></li>`}</ul>
+    <div class="pestanas" role="tablist">
+      ${[["deuda", `Deuda (${deuda.length})`], ["af", "AF"], ["pagos", "Pagos"], ["actividad", "Actividad"]].map(([k, t]) =>
+        `<button role="tab" data-t="${k}" aria-selected="${pestana === k}">${t}</button>`).join("")}
+    </div>
+    <div id="tab">${tabs[pestana]}</div>
+  </main>`;
+  enganchar();
+  $("#vol").onclick = () => { detalle = null; pantallaResumen(); window.scrollTo(0, 0); };
+  app.querySelectorAll(".pestanas button").forEach(b => b.onclick = () => { pestana = b.dataset.t; pantallaArea(); });
+  const q = $("#q");
+  if (q) q.oninput = () => { $("#ld").innerHTML = filasDeuda(deuda, viejo, q.value); };
+}
+
+function filasDeuda(lista, viejo, texto) {
+  const t = texto.trim().toUpperCase();
+  const l = t ? lista.filter(x => (x.proveedor + " " + (x.factura || "") + " " + (x.oc || "")).toUpperCase().includes(t)) : lista;
+  return l.map(x => `<div class="fila ${x.fecha && x.fecha < viejo ? "vieja" : ""}"><div class="i"><b>${esc(x.proveedor)}</b>
+    <span>${esc(x.factura || "")} · ${fecha(x.fecha)}${x.oc ? " · OC " + esc(x.oc) : ""} · ${esc(x.tipo || "")}</span></div>
+    <div class="m"><b class="num">${plataExacta(x.importe)}</b><span>${x.fecha && x.fecha < viejo ? "más de 60 días" : esc(x.rubro || "")}</span></div></div>`).join("")
+    || `<div class="vacio">${t ? "Nada coincide con la búsqueda." : "Sin deuda pendiente."}</div>`;
+}
+
+async function salir(vencida) {
+  const tok = sesion && sesion.token;
+  sesion = null; localStorage.removeItem(GUARDA);
+  if (tok && !vencida) { try { await api("salir", {p_token: tok}); } catch (e) { /* ya está afuera */ } }
+  pantallaIngreso(vencida ? "La sesión venció. Volvé a ingresar." : "");
+}
+
+sesion && sesion.token ? cargar() : pantallaIngreso();
+</script>
+</body>
+</html>
